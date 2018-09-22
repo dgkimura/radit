@@ -1,0 +1,4 @@
+[submodule "check"]
+	path = dependencies/check
+	url = https://github.com/libcheck/check.git
+	branch = master
