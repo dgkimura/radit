@@ -1,10 +1,48 @@
 language: c
-compiler:
-    - clang
-    - gcc
+compiler: gcc
+
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+      addons:
+        apt:
+          config:
+             retries: true
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      env:
+         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+    - os: linux
+      addons:
+        apt:
+          config:
+             retries: true
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+    - os: linux
+      addons:
+        apt:
+          config:
+             retries: true
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
 before_install:
-  - sudo apt-get install check
+    - eval "${MATRIX_EVAL}"
+
+install:
+  - sudo apt-get install check subunit
 
 script:
   - make
