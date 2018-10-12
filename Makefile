@@ -6,10 +6,13 @@ ifeq ($(UNAME_S), Darwin)
 	TEST_LIBS =-lcheck
 endif
 
-all: test_radit
+all: radit test_radit
+
+radit: radit.o
+	$(CC) -shared -o $@.so $^
 
 test_radit: test_radit.o
 	$(CC) -o $@ $^ $(TEST_LIBS)
 
 clean:
-	rm -f test_radit test_radit.o
+	rm -f test_radit test_radit.o radit radit.so
