@@ -5,4 +5,8 @@ struct radit_node
 {
 };
 
+struct radit_tree
+{
+};
+
 #endif
