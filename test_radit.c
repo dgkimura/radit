@@ -1,5 +1,7 @@
 #include <check.h>
 
+#include "radit.h"
+
 START_TEST(test_x)
 {
 }
