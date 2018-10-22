@@ -61,6 +61,14 @@ radit_insert_internal(
     }
 }
 
+void *
+radit_search(
+    const struct radit_tree *tree,
+    const unsigned char *key)
+{
+    return ((struct leaf *)tree->root)->value;
+}
+
 void
 radit_insert(
     struct radit_tree *tree,
