@@ -66,12 +66,13 @@ radit_insert_internal(
     const unsigned char *key,
     void *value)
 {
-    if (!node)
+    if (!*node)
     {
         struct leaf *l = (struct leaf *)malloc(sizeof(struct leaf));
         l->type = NODE_LEAF;
         l->value = value;
         *node = (void *)l;
+        return;
     }
 }
 
