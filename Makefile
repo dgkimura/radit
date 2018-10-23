@@ -13,7 +13,7 @@ radit:
 	$(AR) rcs $@.a $@.o
 
 test_radit: radit
-	$(CC) radit.a test_radit.c -o test_radit $(TEST_LIBS)
+	$(CC) test_radit.c radit.a -o test_radit $(TEST_LIBS)
 
 clean:
 	rm -f test_radit *.o *.a
