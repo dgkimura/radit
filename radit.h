@@ -3,7 +3,7 @@
 
 struct radit_tree
 {
-    struct node *root;
+    void *root;
 };
 
 int radit_init(struct radit_tree *tree);
