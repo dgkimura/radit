@@ -23,6 +23,8 @@ struct node_4
     /* keys are sorted */
     unsigned char keys[4];
 
+    uint8_t num_children;
+
     /* stores between 1 - 4 children*/
     void *children[4];
 };
@@ -33,6 +35,8 @@ struct node_16
 
     /* keys are sorted */
     unsigned char keys[16];
+
+    uint8_t num_children;
 
     /* stores between 5 - 16 children*/
     void *children[16];
@@ -45,6 +49,8 @@ struct node_48
     /* keys are sorted */
     unsigned char keys[48];
 
+    uint8_t num_children;
+
     /* stores between 17 - 48 children*/
     void *children[48];
 };
@@ -55,6 +61,8 @@ struct node_256
 
     /* keys are sorted */
     unsigned char keys[256];
+
+    uint8_t num_children;
 
     /* stores between 49 - 256 children*/
     void *children[256];
@@ -72,6 +80,23 @@ radit_insert_internal(
         l->type = NODE_LEAF;
         l->value = value;
         *node = (void *)l;
+        return;
+    }
+
+    if (NODE_LEAF == ((struct leaf *)node)->type)
+    {
+        struct leaf *ol = (struct leaf *)*node;
+
+        struct node_4 *n = (struct node_4 *)malloc(sizeof(struct node_4));
+        n->type = NODE_4;
+        n->num_children = 0;
+        *node = n;
+
+        struct leaf *nl = (struct leaf *)malloc(sizeof(struct leaf));
+        nl->type = NODE_LEAF;
+
+        n->children[0] = ol;
+        n->children[1] = nl;
         return;
     }
 }
