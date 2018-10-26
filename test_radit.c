@@ -12,6 +12,17 @@ START_TEST(test_insert_then_search_an_element)
 }
 END_TEST
 
+START_TEST(test_x)
+{
+    struct radit_tree t;
+    t.root = NULL;
+    radit_insert(&t, (const unsigned char *)"key", "value");
+    radit_insert(&t, (const unsigned char *)"another_key", "another_value");
+
+    //ck_assert_str_eq("another_value", radit_search(&t, (const unsigned char *)"another_key"));
+}
+END_TEST
+
 int
 main(void)
 {
@@ -21,6 +32,7 @@ main(void)
 
     suite_add_tcase(suite, testcase);
     tcase_add_test(testcase, test_insert_then_search_an_element);
+    tcase_add_test(testcase, test_x);
 
     srunner_run_all(runner, CK_ENV);
     return 0;
