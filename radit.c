@@ -21,7 +21,7 @@ struct node_4
     uint8_t type;
 
     /* keys are sorted */
-    unsigned char keys[4];
+    char keys[4];
 
     uint8_t num_children;
 
@@ -34,7 +34,7 @@ struct node_16
     uint8_t type;
 
     /* keys are sorted */
-    unsigned char keys[16];
+    char keys[16];
 
     uint8_t num_children;
 
@@ -47,7 +47,7 @@ struct node_48
     uint8_t type;
 
     /* keys are sorted */
-    unsigned char keys[48];
+    char keys[48];
 
     uint8_t num_children;
 
@@ -60,7 +60,7 @@ struct node_256
     uint8_t type;
 
     /* keys are sorted */
-    unsigned char keys[256];
+    char keys[256];
 
     uint8_t num_children;
 
@@ -71,7 +71,7 @@ struct node_256
 static void
 radit_insert_internal(
     void **node,
-    const unsigned char *key,
+    const char *key,
     void *value)
 {
     if (!*node)
@@ -104,7 +104,7 @@ radit_insert_internal(
 void *
 radit_search(
     const struct radit_tree *tree,
-    const unsigned char *key)
+    const char *key)
 {
     return ((struct leaf *)tree->root)->value;
 }
@@ -112,7 +112,7 @@ radit_search(
 void
 radit_insert(
     struct radit_tree *tree,
-    const unsigned char *key,
+    const char *key,
     void *value)
 {
     radit_insert_internal(&tree->root, key, value);
