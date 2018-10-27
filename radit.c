@@ -47,7 +47,7 @@ struct node_48
     uint8_t type;
 
     /* keys are sorted */
-    char keys[48];
+    char keys[256];
 
     uint8_t num_children;
 
@@ -58,9 +58,6 @@ struct node_48
 struct node_256
 {
     uint8_t type;
-
-    /* keys are sorted */
-    char keys[256];
 
     uint8_t num_children;
 
