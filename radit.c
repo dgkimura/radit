@@ -94,6 +94,7 @@ radit_insert_internal(
 
         n->children[0] = ol;
         n->children[1] = nl;
+        n->num_children = 2;
         return;
     }
 }
