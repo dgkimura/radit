@@ -91,6 +91,8 @@ radit_insert_internal(
 
         struct leaf *nl = (struct leaf *)malloc(sizeof(struct leaf));
         nl->type = NODE_LEAF;
+        nl->value = value;
+
 
         n->children[0] = ol;
         n->children[1] = nl;
