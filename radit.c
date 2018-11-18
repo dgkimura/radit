@@ -80,7 +80,7 @@ radit_insert_internal(
         return;
     }
 
-    if (NODE_LEAF == ((struct leaf *)node)->type)
+    if (NODE_LEAF == ((struct leaf *)(*node))->type)
     {
         struct leaf *ol = (struct leaf *)*node;
 
