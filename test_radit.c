@@ -19,7 +19,7 @@ START_TEST(test_x)
     radit_insert(&t, "key", "value");
     radit_insert(&t, "another_key", "another_value");
 
-    //ck_assert_str_eq("another_value", radit_search(&t, (const unsigned char *)"another_key"));
+    ck_assert_str_eq("another_value", radit_search(&t, "another_key"));
 }
 END_TEST
 

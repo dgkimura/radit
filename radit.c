@@ -101,12 +101,38 @@ radit_insert_internal(
     }
 }
 
+static void *
+radit_search_internal(
+    const struct leaf *node,
+    const char *key)
+{
+    uint8_t i;
+    struct node_4 *n4;
+
+    if (NODE_LEAF == node->type)
+    {
+        return node->value;
+    }
+
+    if (NODE_4 == node->type)
+    {
+        n4 = (struct node_4 *)node;
+
+        for (i = 0; i < n4->num_children; i++)
+        {
+            return radit_search_internal(n4->children[1], key + 1);
+        }
+    }
+
+    return NULL;
+}
+
 void *
 radit_search(
     const struct radit_tree *tree,
     const char *key)
 {
-    return ((struct leaf *)tree->root)->value;
+    return radit_search_internal(tree->root, key);
 }
 
 void
