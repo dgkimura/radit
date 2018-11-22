@@ -9,11 +9,11 @@ endif
 all: radit test_radit
 
 radit:
-	$(CC) -c radit.c -o $@.o ${LIBS}
+	$(CC) -g -c radit.c -o $@.o ${LIBS}
 	$(AR) rcs $@.a $@.o
 
 test_radit: radit
-	$(CC) test_radit.c radit.a -o test_radit $(TEST_LIBS)
+	$(CC) -g test_radit.c radit.a -o test_radit $(TEST_LIBS)
 
 clean:
 	rm -f test_radit *.o *.a
