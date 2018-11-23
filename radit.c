@@ -14,6 +14,8 @@ struct leaf
     uint8_t type;
 
     void *value;
+
+    const char *key;
 };
 
 struct node_4
@@ -76,6 +78,7 @@ radit_insert_internal(
         struct leaf *l = (struct leaf *)malloc(sizeof(struct leaf));
         l->type = NODE_LEAF;
         l->value = value;
+        l->key = key;
         *node = (void *)l;
         return;
     }
@@ -92,10 +95,12 @@ radit_insert_internal(
         struct leaf *nl = (struct leaf *)malloc(sizeof(struct leaf));
         nl->type = NODE_LEAF;
         nl->value = value;
-
+        nl->key = key;
 
         n->children[0] = ol;
+        n->keys[0] = ol->key[0];
         n->children[1] = nl;
+        n->keys[1] = nl->key[0];
         n->num_children = 2;
         return;
     }
@@ -120,7 +125,10 @@ radit_search_internal(
 
         for (i = 0; i < n4->num_children; i++)
         {
-            return radit_search_internal(n4->children[1], key + 1);
+            if (n4->keys[i] == key[0])
+            {
+                return radit_search_internal(n4->children[i], key + 1);
+            }
         }
     }
 
