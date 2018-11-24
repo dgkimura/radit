@@ -104,6 +104,22 @@ radit_insert_internal(
         n->num_children = 2;
         return;
     }
+
+    if (NODE_4 == ((struct leaf *)(*node))->type)
+    {
+        struct node_4 *n4 = (struct node_4 *)*node;
+
+        if (n4->num_children < 4)
+        {
+            struct leaf *nl = (struct leaf *)malloc(sizeof(struct leaf));
+            nl->value = value;
+            nl->key = key;
+
+            n4->children[n4->num_children] = nl;
+            n4->keys[n4->num_children] = nl->key[0];
+            n4->num_children += 1;
+        }
+    }
 }
 
 static void *
