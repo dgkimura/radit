@@ -90,17 +90,13 @@ radit_insert_internal(
         struct node_4 *n = (struct node_4 *)malloc(sizeof(struct node_4));
         n->type = NODE_4;
         n->num_children = 0;
+        memset(n->children, 0, sizeof(void *) * 4);
         *node = n;
-
-        struct leaf *nl = (struct leaf *)malloc(sizeof(struct leaf));
-        nl->type = NODE_LEAF;
-        nl->value = value;
-        nl->key = key;
 
         n->children[0] = ol;
         n->keys[0] = ol->key[0];
-        n->children[1] = nl;
-        n->keys[1] = nl->key[0];
+        radit_insert_internal(&n->children[1], key, value);
+        n->keys[1] = ((struct leaf *)(n->children[1]))->key[0];
         n->num_children = 2;
         return;
     }
@@ -111,13 +107,10 @@ radit_insert_internal(
 
         if (n4->num_children < 4)
         {
-            struct leaf *nl = (struct leaf *)malloc(sizeof(struct leaf));
-            nl->value = value;
-            nl->key = key;
-
-            n4->children[n4->num_children] = nl;
-            n4->keys[n4->num_children] = nl->key[0];
+            radit_insert_internal(&n4->children[n4->num_children], key, value);
+            n4->keys[n4->num_children] = ((struct leaf *)(n4->children[n4->num_children]))->key[0];
             n4->num_children += 1;
+            return;
         }
     }
 }
