@@ -90,7 +90,7 @@ radit_insert_internal(
         struct node_4 *n = (struct node_4 *)malloc(sizeof(struct node_4));
         n->type = NODE_4;
         n->num_children = 0;
-        memset(n->children, 0, sizeof(void *) * 4);
+        memset(n->children, 0, sizeof(n->children));
         *node = n;
 
         n->children[0] = ol;
