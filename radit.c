@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "radit.h"
 
@@ -122,6 +123,7 @@ radit_search_internal(
 {
     uint8_t i;
     struct node_4 *n4;
+    struct node_16 *n16;
 
     if (NODE_LEAF == node->type)
     {
@@ -137,6 +139,19 @@ radit_search_internal(
             if (n4->keys[i] == key[0])
             {
                 return radit_search_internal(n4->children[i], key + 1);
+            }
+        }
+    }
+
+    if (NODE_16 == node->type)
+    {
+        n16 = (struct node_16 *)node;
+
+        for (i = 0; i < n16->num_children; i++)
+        {
+            if (n16->keys[i] == key[0])
+            {
+                return radit_search_internal(n16->children[i], key + 1);
             }
         }
     }
