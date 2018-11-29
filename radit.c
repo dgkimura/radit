@@ -113,6 +113,37 @@ radit_insert_internal(
             n4->num_children += 1;
             return;
         }
+
+        struct node_16 *n = (struct node_16 *)malloc(sizeof(struct node_16));
+        n->type = NODE_16;
+        memset(n->children, 0, sizeof(n->children));
+
+        int i;
+        for (i=0; i<n4->num_children; i++)
+        {
+            n->children[i] = n4->children[i];
+            n->keys[i] = n4->keys[i];
+        }
+        free(n4);
+
+        radit_insert_internal(&n->children[i], key, value);
+        n->keys[i] = ((struct leaf *)(n->children[i]))->key[0];
+        n->num_children = n4->num_children + 1;
+        *node = n;
+        return;
+    }
+
+    if (NODE_16 == ((struct node_16 *)(*node))->type)
+    {
+        struct node_16 *n16 = (struct node_16 *)*node;
+
+        if (n16->num_children < 16)
+        {
+            radit_insert_internal(&n16->children[n16->num_children], key, value);
+            n16->keys[n16->num_children] = ((struct leaf *)(n16->children[n16->num_children]))->key[0];
+            n16->num_children += 1;
+            return;
+        }
     }
 }
 
