@@ -5,4 +5,6 @@
 Radit is a radix tree implementation.
 
 ## Build
+```
 $ make && ./test_radit
+```
