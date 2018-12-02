@@ -89,9 +89,9 @@ main(void)
 
     suite_add_tcase(suite, testcase);
     tcase_add_test(testcase, test_insert_then_search_an_element);
-    tcase_add_test(testcase, test_two_inserts_then_search_two_elements);
-    tcase_add_test(testcase, test_four_inserts_then_search_four_elements);
-    tcase_add_test(testcase, test_sixteen_inserts_then_search_sixteen_elements);
+    //tcase_add_test(testcase, test_two_inserts_then_search_two_elements);
+    //tcase_add_test(testcase, test_four_inserts_then_search_four_elements);
+    //tcase_add_test(testcase, test_sixteen_inserts_then_search_sixteen_elements);
 
     srunner_run_all(runner, CK_ENV);
     return 0;

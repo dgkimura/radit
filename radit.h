@@ -1,12 +1,23 @@
 #ifndef RADIT_H
 #define RADIT_H
 
-struct radit_tree
+struct node
 {
-    void *root;
+    uint8_t is_leaf:1;
+
+    uint8_t is_compressed:1;
+
+    uint8_t size:6;
+
+    unsigned char data[];
 };
 
-int radit_init(struct radit_tree *tree);
+struct radit_tree
+{
+    struct node *root;
+};
+
+void radit_init(struct radit_tree *tree);
 
 int radit_destroy(struct radit_tree *tree);
 
