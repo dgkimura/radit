@@ -3,7 +3,7 @@
 
 struct node
 {
-    uint8_t is_leaf:1;
+    uint8_t has_value:1;
 
     uint8_t is_compressed:1;
 

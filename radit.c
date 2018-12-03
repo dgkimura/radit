@@ -50,7 +50,7 @@ get_value(struct node *node)
 static void
 set_value(struct node *node, void *data)
 {
-    node->is_leaf = 1;
+    node->has_value = 1;
     memcpy(get_value(node), data, sizeof(void *));
 }
 
@@ -59,7 +59,7 @@ radit_search(
     const struct radit_tree *tree,
     const char *key)
 {
-    if (tree->root->is_leaf)
+    if (tree->root->has_value)
     {
         return get_value(tree->root);
     }
