@@ -59,7 +59,7 @@ radit_search(
     const struct radit_tree *tree,
     const char *key)
 {
-    if (tree->root->has_value)
+    if (tree->root->has_value && strncmp((char *)tree->root->data, key, strlen(key)) == 0)
     {
         return get_value(tree->root);
     }

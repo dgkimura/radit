@@ -9,6 +9,7 @@ START_TEST(test_insert_then_search_an_element)
     radit_insert(&t, "key", "value");
 
     ck_assert_str_eq("value", radit_search(&t, "key"));
+    ck_assert_ptr_eq(NULL, radit_search(&t, "fake_key"));
 }
 END_TEST
 
