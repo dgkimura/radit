@@ -54,16 +54,27 @@ set_value(struct node *node, void *data)
     memcpy(get_value(node), data, sizeof(void *));
 }
 
+static void *
+radit_search_internal(struct node *node, const char * key)
+{
+    if (node->has_value && strncmp((char *)node->data, key, strlen(key)) == 0)
+    {
+        return get_value(node);
+    }
+
+    return NULL;
+}
+
 void *
 radit_search(
     const struct radit_tree *tree,
     const char *key)
 {
-    if (tree->root->has_value && strncmp((char *)tree->root->data, key, strlen(key)) == 0)
+    if (!tree->root)
     {
-        return get_value(tree->root);
+        return NULL;
     }
-    return NULL;
+    return radit_search_internal(tree->root, key);
 }
 
 void

@@ -2,6 +2,15 @@
 
 #include "radit.h"
 
+START_TEST(test_search_an_empty_tree)
+{
+    struct radit_tree t;
+    t.root = NULL;
+
+    ck_assert_ptr_eq(NULL, radit_search(&t, "fake_key"));
+}
+END_TEST
+
 START_TEST(test_insert_then_search_an_element)
 {
     struct radit_tree t;
@@ -89,6 +98,7 @@ main(void)
     SRunner *runner = srunner_create(suite);
 
     suite_add_tcase(suite, testcase);
+    tcase_add_test(testcase, test_search_an_empty_tree);
     tcase_add_test(testcase, test_insert_then_search_an_element);
     //tcase_add_test(testcase, test_two_inserts_then_search_two_elements);
     //tcase_add_test(testcase, test_four_inserts_then_search_four_elements);
