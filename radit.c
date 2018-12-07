@@ -1,8 +1,11 @@
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "radit.h"
+
+#define OFFSET_INDEX(node, index) (unsigned long int *)((void *)(&node->data) + sizeof(unsigned char) * node->size + sizeof(struct node *) * index)
 
 static struct node *
 create_parent_node(uint8_t num_children)
