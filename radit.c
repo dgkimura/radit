@@ -22,6 +22,8 @@ create_parent_node(uint8_t num_children)
     struct node *node;
     node = malloc(sizeof(struct node) + num_children +
                   sizeof(struct node *) * num_children + sizeof(void *));
+    memset(node->data, 0, sizeof(struct node) + num_children +
+           sizeof(struct node *) * num_children + sizeof(void *));
     node->is_compressed = 0;
     node->size = num_children;
     return node;
@@ -39,10 +41,12 @@ create_compressed_node(unsigned char *compressed_data, uint8_t compressed_length
     node = malloc(sizeof(struct node) +
                   sizeof(unsigned char) * compressed_length +
                   sizeof(struct node *) + sizeof(void *));
+    memset(node, 0, sizeof(struct node) +
+           sizeof(unsigned char) * compressed_length +
+           sizeof(struct node *) + sizeof(void *));
     node->is_compressed = 1;
     node->size = compressed_length;
     memcpy(node->data, compressed_data, compressed_length);
-    memset(node->data + compressed_length, 0, sizeof(struct node *) + sizeof(void *));
     return node;
 }
 
@@ -81,8 +85,6 @@ set_link(struct node *parent, struct node *child, uint8_t index)
     assert(child->is_compressed);
     assert(index < parent->size);
 
-    printf("old value '%llx'\n", *(uint64_t *)VALUE_ADDRESS(child));
-
     parent->data[index] = child->data[0];
 
     /* Shift child compressed data */
@@ -96,9 +98,7 @@ set_link(struct node *parent, struct node *child, uint8_t index)
     child->size -= 1;
 
     /* Set parent to point to child */
-    memcpy((uint64_t *)INDEX_ADDRESS(parent, index), (uint64_t)child, sizeof(void *));
-
-    printf("new value '%llx'\n", *(uint64_t *)VALUE_ADDRESS(child));
+    *((uint64_t *)INDEX_ADDRESS(parent, index)) = (uint64_t)child;
 }
 
 static void
@@ -134,19 +134,19 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, voi
 static void *
 radit_search_internal(struct node *node, const char * key)
 {
-    printf("found %s\n", node->data);
     if (node->has_value && strncmp((char *)node->data, key, strlen(key)) == 0)
     {
-        printf("found match %s\n", node->data);
-        return get_value(node);
+        return *(uint64_t *)VALUE_ADDRESS(node);
     }
     else if (!node->is_compressed)
     {
         int i;
         for (i=0; i<node->size; i++)
         {
-            printf("searching index %c\n", node->data[i]);
-            return radit_search_internal(INDEX_ADDRESS(node, i), key + 1);
+            if (node->data[i] == key[0])
+            {
+                return radit_search_internal(*(uint64_t *)INDEX_ADDRESS(node, i), key + 1);
+            }
         }
     }
 

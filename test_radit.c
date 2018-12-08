@@ -13,16 +13,9 @@ END_TEST
 
 START_TEST(test_insert_then_search_an_element)
 {
-	char *k = "key";
-	char *v = "value";
-
-	printf("value address %x\n", *(unsigned long int *)v);
-
     struct radit_tree t;
     t.root = NULL;
-    radit_insert(&t, k, v);
-
-    printf("search returned '%s' at %x\n", radit_search(&t, "key"), *(unsigned long int*)radit_search(&t, "key"));
+    radit_insert(&t, "key", "value");
 
     ck_assert_str_eq("value", radit_search(&t, "key"));
 }
@@ -30,21 +23,15 @@ END_TEST
 
 START_TEST(test_two_inserts_then_search_two_elements)
 {
-	char *k = "akey";
-	char *v = "avalue";
-	char *k2 = "bkey2";
-	char *v2 = "bvalue2";
-
-	printf("value address v  %llx\n", (uint64_t *)v);
-	printf("value address v2 %llx\n", (uint64_t *)v2);
+	char *k = "key";
+	char *v = "value";
+	char *k2 = "another_key";
+	char *v2 = "another_value";
 
     struct radit_tree t;
     t.root = NULL;
     radit_insert(&t, k, v);
     radit_insert(&t, k2, v2);
-
-    //printf("search returned '%s' at %x\n", radit_search(&t, "key"), *(unsigned long int*)radit_search(&t, "key"));
-    //printf("search returned '%s' at %x\n", radit_search(&t, "key2"), *(unsigned long int*)radit_search(&t, "key2"));
 
     ck_assert_str_eq("value", radit_search(&t, "key"));
     ck_assert_str_eq("another_value", radit_search(&t, "another_key"));
@@ -115,8 +102,8 @@ main(void)
     SRunner *runner = srunner_create(suite);
 
     suite_add_tcase(suite, testcase);
-    //tcase_add_test(testcase, test_insert_then_search_an_element);
-    //tcase_add_test(testcase, test_search_an_empty_tree);
+    tcase_add_test(testcase, test_insert_then_search_an_element);
+    tcase_add_test(testcase, test_search_an_empty_tree);
     tcase_add_test(testcase, test_two_inserts_then_search_two_elements);
     //tcase_add_test(testcase, test_four_inserts_then_search_four_elements);
     //tcase_add_test(testcase, test_sixteen_inserts_then_search_sixteen_elements);
