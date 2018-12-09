@@ -8,9 +8,6 @@
 
 #define INDEX_ADDRESS(node, index) ((uint64_t)(&node->data) + sizeof(unsigned char) * node->size + sizeof(struct node *) * index)
 
-/* assumes compressed node */
-#define VALUE_ADDRESS(node) ((uint64_t)(&node->data) + sizeof(unsigned char) * node->size + sizeof(struct node *))
-
 static struct node *
 create_parent_node(uint8_t num_children)
 {
@@ -55,15 +52,23 @@ get_value(struct node *node)
 {
     uint64_t base_address = (uint64_t)node;
     return node->is_compressed ?
-        base_address + sizeof(struct node) + node->size + sizeof(struct node *) * node->size :
-        base_address + sizeof(struct node) + node->size + sizeof(struct node *);
+        *(uint64_t *)(base_address + sizeof(struct node) + node->size + sizeof(struct node *)) :
+        *(uint64_t *)(base_address + sizeof(struct node) + node->size + sizeof(struct node *) * node->size);
 }
 
 static void
 set_value(struct node *node, uint64_t data)
 {
     node->has_value = 1;
-    *(uint64_t *)VALUE_ADDRESS(node) = data;
+    uint64_t base_address = (uint64_t)node;
+    if (node->is_compressed)
+    {
+        *(uint64_t *)(base_address + sizeof(struct node) + node->size + sizeof(struct node *)) = data;
+    }
+    else
+    {
+        *(uint64_t *)(base_address + sizeof(struct node) + node->size + sizeof(struct node *) * node->size) = data;
+    }
 }
 
 static void
@@ -78,8 +83,8 @@ set_link(struct node *parent, struct node *child, uint8_t index)
      *  [is_compressed=1][bc][c-pointer][value-pointer]
      *
      * Parent node:
-     *  [is_compressed=0][][NULL][NULL]
-     *  [is_compressed=0][a][a-pointer][NULL]
+     *  [is_compressed=0][z][z-pointer][NULL]
+     *  [is_compressed=0][z][a][z-pointer][a-pointer][NULL]
      */
     assert(!parent->is_compressed);
     assert(child->is_compressed);
@@ -94,8 +99,9 @@ set_link(struct node *parent, struct node *child, uint8_t index)
     memmove((void *)(INDEX_ADDRESS(child, 0) - sizeof(unsigned char)), (void *)INDEX_ADDRESS(child, 0), sizeof(struct node *));
 
     /* Shift child value pointer */
-    memmove((void *)(VALUE_ADDRESS(child) - sizeof(unsigned char)), (void *)VALUE_ADDRESS(child), sizeof(void *));
+    uint64_t old_value = get_value(child);
     child->size -= 1;
+    set_value(child, old_value);
 
     /* Set parent to point to child */
     *((uint64_t *)INDEX_ADDRESS(parent, index)) = (uint64_t)child;
@@ -136,7 +142,7 @@ radit_search_internal(struct node *node, const char * key)
 {
     if (node->has_value && strncmp((char *)node->data, key, strlen(key)) == 0)
     {
-        return *(uint64_t *)VALUE_ADDRESS(node);
+        return get_value(node);
     }
     else if (!node->is_compressed)
     {
