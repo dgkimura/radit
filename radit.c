@@ -47,7 +47,7 @@ create_compressed_node(unsigned char *compressed_data, uint8_t compressed_length
     return node;
 }
 
-static uint64_t *
+static uint64_t
 get_value(struct node *node)
 {
     uint64_t base_address = (uint64_t)node;
@@ -108,7 +108,7 @@ set_link(struct node *parent, struct node *child, uint8_t index)
 }
 
 static void
-radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, void *value)
+radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int64_t value)
 {
     if ((*node)->is_compressed)
     {
@@ -142,7 +142,7 @@ radit_search_internal(struct node *node, const char * key)
 {
     if (node->has_value && strncmp((char *)node->data, key, strlen(key)) == 0)
     {
-        return get_value(node);
+        return (void *)get_value(node);
     }
     else if (!node->is_compressed)
     {
@@ -151,7 +151,7 @@ radit_search_internal(struct node *node, const char * key)
         {
             if (node->data[i] == key[0])
             {
-                return radit_search_internal(*(uint64_t *)INDEX_ADDRESS(node, i), key + 1);
+                return radit_search_internal((struct node *)(*(uint64_t *)INDEX_ADDRESS(node, i)), key + 1);
             }
         }
     }
@@ -181,12 +181,12 @@ radit_insert(
     {
         struct node *n;
         n = create_compressed_node((unsigned char *)key, strlen(key));
-        set_value(n, value);
+        set_value(n, (int64_t)value);
 
         tree->root = n;
     }
     else
     {
-        radit_insert_internal(&tree->root, (unsigned char *)key, strlen(key), value);
+        radit_insert_internal(&tree->root, (unsigned char *)key, strlen(key), (int64_t)value);
     }
 }
