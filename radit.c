@@ -107,6 +107,21 @@ set_link(struct node *parent, struct node *child, uint8_t index)
     *((uint64_t *)INDEX_ADDRESS(parent, index)) = (uint64_t)child;
 }
 
+static uint8_t
+prefix_matches_index(unsigned char *a, size_t alen, unsigned char * b, size_t blen)
+{
+    int i;
+    int j = alen < blen ? alen : blen;
+    for (i=0; i<j; i++)
+    {
+        if (a[i] != b[i])
+        {
+            break;
+        }
+    }
+    return i-1;
+}
+
 static void
 radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int64_t value)
 {
