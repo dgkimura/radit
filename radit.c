@@ -108,7 +108,7 @@ set_link(struct node *parent, struct node *child, uint8_t index)
 }
 
 static uint8_t
-prefix_matches_index(unsigned char *a, size_t alen, unsigned char * b, size_t blen)
+prefix_matches_length(unsigned char *a, size_t alen, unsigned char * b, size_t blen)
 {
     int i;
     int j = alen < blen ? alen : blen;
@@ -119,7 +119,7 @@ prefix_matches_index(unsigned char *a, size_t alen, unsigned char * b, size_t bl
             break;
         }
     }
-    return i-1;
+    return i;
 }
 
 static void
@@ -130,13 +130,21 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
         /*
          * realloc parent to include an additional child node.
          */
-
-        //TODO if key is a prefix of compressed data then split compressed data
-        //TODO if compressed data is a prefix of key then extend node's child
-        //TODO should be adding an additional slot (without assuming parent has only 1 slot)
-
         struct node *new_parent = create_parent_node(2);
-        struct node *new_child = create_compressed_node(key, keylen);
+        struct node *new_child;
+
+        int8_t length = prefix_matches_length((*node)->data, (*node)->size, key, keylen);
+
+        if (length > 0)
+        {
+            new_child = create_compressed_node(key + length, keylen - length);
+            //TODO old node needs to truncate off common prefix.
+            // consider function truncate_data(struct node *n, uint8_t length);
+        }
+        else
+        {
+            new_child = create_compressed_node(key, keylen);
+        }
 
         set_value(new_child, value);
 
