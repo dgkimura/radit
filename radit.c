@@ -72,6 +72,23 @@ set_value(struct node *node, uint64_t data)
 }
 
 static void
+truncate_compressed_node(struct node *node, size_t length)
+{
+    assert(node->is_compressed);
+
+    /* Shift compressed data */
+    memmove(node->data, node->data + length, sizeof(unsigned char) * (node->size - length));
+
+    /* Shift index (compressed has only 1 index) */
+    memmove((void *)(INDEX_ADDRESS(node, 0) - sizeof(unsigned char) * length), (void *)INDEX_ADDRESS(node, 0), sizeof(struct node *));
+
+    /* Shift value pointer */
+    uint64_t old_value = get_value(node);
+    node->size -= length;
+    set_value(node, old_value);
+}
+
+static void
 set_link(struct node *parent, struct node *child, uint8_t index)
 {
     /*
@@ -92,16 +109,7 @@ set_link(struct node *parent, struct node *child, uint8_t index)
 
     parent->data[index] = child->data[0];
 
-    /* Shift child compressed data */
-    memmove(child->data, child->data + 1, sizeof(unsigned char) * (child->size - 1));
-
-    /* Shift child index by 1 char (compressed has only 1 index) */
-    memmove((void *)(INDEX_ADDRESS(child, 0) - sizeof(unsigned char)), (void *)INDEX_ADDRESS(child, 0), sizeof(struct node *));
-
-    /* Shift child value pointer */
-    uint64_t old_value = get_value(child);
-    child->size -= 1;
-    set_value(child, old_value);
+    truncate_compressed_node(child, 1);
 
     /* Set parent to point to child */
     *((uint64_t *)INDEX_ADDRESS(parent, index)) = (uint64_t)child;
@@ -127,24 +135,27 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
 {
     if ((*node)->is_compressed)
     {
-        /*
-         * realloc parent to include an additional child node.
-         */
-        struct node *new_parent = create_parent_node(2);
+        struct node *new_parent;
         struct node *new_child;
 
         int8_t length = prefix_matches_length((*node)->data, (*node)->size, key, keylen);
 
         if (length > 0)
         {
-            new_child = create_compressed_node(key + length, keylen - length);
-            //TODO old node needs to truncate off common prefix.
-            // consider function truncate_data(struct node *n, uint8_t length);
+            /*
+             * Truncate off the common prefix
+             */
+            truncate_compressed_node(*node, length);
+            new_parent = create_compressed_node(key, length);
+
+            // TODO create subparent with 2 indexes pointing to old node and new_child
         }
         else
         {
-            new_child = create_compressed_node(key, keylen);
+            new_parent = create_parent_node(2);
         }
+
+        new_child = create_compressed_node(key + length, keylen - length);
 
         set_value(new_child, value);
 
