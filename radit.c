@@ -74,6 +74,13 @@ set_value(struct node *node, uint64_t data)
 static void
 truncate_compressed_node(struct node *node, size_t length)
 {
+    /*
+     * Truncate the node by shifting compressed data, index pointer, and value
+     * pointer.
+     *
+     *  [is_compressed=1][abc][c-pointer][value-pointer]
+     *  [is_compressed=1][bc][c-pointer][value-pointer]
+     */
     assert(node->is_compressed);
 
     /* Shift compressed data */
@@ -89,27 +96,13 @@ truncate_compressed_node(struct node *node, size_t length)
 }
 
 static void
-set_link(struct node *parent, struct node *child, uint8_t index)
+set_node_index(struct node *parent, struct node *child, uint8_t index)
 {
-    /*
-     * Truncate the child node 1 index (must move pointer value) and move it to
-     * parent. Then point parent index to child.
-     *
-     * Child node:
-     *  [is_compressed=1][abc][c-pointer][value-pointer]
-     *  [is_compressed=1][bc][c-pointer][value-pointer]
-     *
-     * Parent node:
-     *  [is_compressed=0][z][z-pointer][NULL]
-     *  [is_compressed=0][z][a][z-pointer][a-pointer][NULL]
-     */
     assert(!parent->is_compressed);
     assert(child->is_compressed);
     assert(index < parent->size);
 
     parent->data[index] = child->data[0];
-
-    truncate_compressed_node(child, 1);
 
     /* Set parent to point to child */
     *((uint64_t *)INDEX_ADDRESS(parent, index)) = (uint64_t)child;
@@ -137,6 +130,7 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
     {
         struct node *new_parent;
         struct node *new_child;
+        struct node *new_grandchild;
 
         int8_t length = prefix_matches_length((*node)->data, (*node)->size, key, keylen);
 
@@ -145,22 +139,31 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
             /*
              * Truncate off the common prefix
              */
-            truncate_compressed_node(*node, length);
             new_parent = create_compressed_node(key, length);
+            new_child = create_parent_node(2);
 
-            // TODO create subparent with 2 indexes pointing to old node and new_child
+            set_node_index(new_parent, new_child, 0);
+
+            set_node_index(new_child, *node, 1);
+            truncate_compressed_node(*node, length);
+
+            new_grandchild = create_compressed_node(key + length, keylen - length);
+            set_value(new_grandchild, value);
+            set_node_index(new_child, new_grandchild, 1);
         }
         else
         {
             new_parent = create_parent_node(2);
+            new_child = create_compressed_node(key + length, keylen - length);
+
+            set_value(new_child, value);
+
+            set_node_index(new_parent, *node, 0);
+            truncate_compressed_node(*node, 1);
+
+            set_node_index(new_parent, new_child, 1);
+            truncate_compressed_node(new_child, 1);
         }
-
-        new_child = create_compressed_node(key + length, keylen - length);
-
-        set_value(new_child, value);
-
-        set_link(new_parent, *node, 0);
-        set_link(new_parent, new_child, 1);
 
         *node = new_parent;
     }
