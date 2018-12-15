@@ -98,8 +98,7 @@ truncate_compressed_node(struct node *node, size_t length)
 static void
 set_node_index(struct node *parent, struct node *child, uint8_t index)
 {
-    assert(!parent->is_compressed);
-    assert(child->is_compressed);
+    assert(!parent->is_compressed || index == 0);
     assert(index < parent->size);
 
     parent->data[index] = child->data[0];
@@ -142,10 +141,10 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
             new_parent = create_compressed_node(key, length);
             new_child = create_parent_node(2);
 
-            set_node_index(new_parent, new_child, 0);
+            *((uint64_t *)INDEX_ADDRESS(new_parent, 0)) = (uint64_t)new_child;
 
-            set_node_index(new_child, *node, 1);
             truncate_compressed_node(*node, length);
+            set_node_index(new_child, *node, 0);
 
             new_grandchild = create_compressed_node(key + length, keylen - length);
             set_value(new_grandchild, value);
@@ -191,6 +190,10 @@ radit_search_internal(struct node *node, const char * key)
                 return radit_search_internal((struct node *)(*(uint64_t *)INDEX_ADDRESS(node, i)), key + 1);
             }
         }
+    }
+    else if (node->is_compressed && strncmp((char *)node->data, key, node->size) == 0)
+    {
+        return radit_search_internal((struct node *)(*(uint64_t *)INDEX_ADDRESS(node, 0)), key + node->size);
     }
 
     return NULL;
