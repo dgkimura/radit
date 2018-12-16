@@ -133,7 +133,31 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
 
         int8_t length = prefix_matches_length((*node)->data, (*node)->size, key, keylen);
 
-        if (length > 0)
+        if (length == keylen)
+        {
+            /*
+             * Key being added is a substring.
+             */
+            new_parent = create_compressed_node(key, length);
+            set_value(new_parent, value);
+
+            new_child = create_parent_node(1);
+            *((uint64_t *)INDEX_ADDRESS(new_parent, 0)) = (uint64_t)new_child;
+
+            truncate_compressed_node(*node, length);
+            set_node_index(new_child, *node, 0);
+            truncate_compressed_node(*node, 1);
+        }
+        else if (length == (*node)->size)
+        {
+            new_parent = *node;
+
+            new_child = create_compressed_node(key + length, keylen - length);
+            set_value(new_child, value);
+
+            *((uint64_t *)INDEX_ADDRESS(new_parent, 0)) = (uint64_t)new_child;
+        }
+        else if (length > 0)
         {
             /*
              * Truncate off the common prefix

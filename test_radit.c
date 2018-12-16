@@ -50,6 +50,30 @@ START_TEST(test_two_inserts_with_common_prefix_then_search_two_elements)
 }
 END_TEST
 
+START_TEST(test_string_and_substring_insert_then_search_two_elements)
+{
+    struct radit_tree t;
+    t.root = NULL;
+    radit_insert(&t, "the_beginning_of_a_long_string", "value_1");
+    radit_insert(&t, "the_beginning", "value_0");
+
+    ck_assert_str_eq("value_1", radit_search(&t, "the_beginning_of_a_long_string"));
+    ck_assert_str_eq("value_0", radit_search(&t, "the_beginning"));
+}
+END_TEST
+
+START_TEST(test_substring_and_string_insert_then_search_elements)
+{
+    struct radit_tree t;
+    t.root = NULL;
+    radit_insert(&t, "the_beginning", "value_0");
+    radit_insert(&t, "the_beginning_of_a_long_string", "value_1");
+
+    ck_assert_str_eq("value_0", radit_search(&t, "the_beginning"));
+    ck_assert_str_eq("value_1", radit_search(&t, "the_beginning_of_a_long_string"));
+}
+END_TEST
+
 START_TEST(test_four_inserts_then_search_four_elements)
 {
     struct radit_tree t;
@@ -118,6 +142,8 @@ main(void)
     tcase_add_test(testcase, test_search_an_empty_tree);
     tcase_add_test(testcase, test_two_inserts_then_search_two_elements);
     tcase_add_test(testcase, test_two_inserts_with_common_prefix_then_search_two_elements);
+    tcase_add_test(testcase, test_string_and_substring_insert_then_search_two_elements);
+    tcase_add_test(testcase, test_substring_and_string_insert_then_search_elements);
     //tcase_add_test(testcase, test_four_inserts_then_search_four_elements);
     //tcase_add_test(testcase, test_sixteen_inserts_then_search_sixteen_elements);
 
