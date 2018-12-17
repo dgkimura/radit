@@ -6,7 +6,7 @@
 
 #include "radit.h"
 
-#define INDEX_ADDRESS(node, index) ((uint64_t)(&node->data) + sizeof(unsigned char) * node->size + sizeof(struct node *) * index)
+#define INDEX_ADDRESS(n, index) ((uint64_t)(&n->data) + sizeof(unsigned char) * n->size + sizeof(struct node *) * index)
 
 static struct node *
 create_parent_node(uint8_t num_children)
