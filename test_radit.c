@@ -74,6 +74,20 @@ START_TEST(test_substring_and_string_insert_then_search_elements)
 }
 END_TEST
 
+START_TEST(test_insert_three_elemnts_then_search_elements)
+{
+    struct radit_tree t;
+    t.root = NULL;
+    radit_insert(&t, "a_key", "a_value");
+    radit_insert(&t, "b_key", "b_value");
+    radit_insert(&t, "c_key", "c_value");
+
+    ck_assert_str_eq("a_value", radit_search(&t, "a_key"));
+    ck_assert_str_eq("b_value", radit_search(&t, "b_key"));
+    ck_assert_str_eq("c_value", radit_search(&t, "c_key"));
+}
+END_TEST
+
 START_TEST(test_four_inserts_then_search_four_elements)
 {
     struct radit_tree t;
@@ -144,6 +158,7 @@ main(void)
     tcase_add_test(testcase, test_two_inserts_with_common_prefix_then_search_two_elements);
     tcase_add_test(testcase, test_string_and_substring_insert_then_search_two_elements);
     tcase_add_test(testcase, test_substring_and_string_insert_then_search_elements);
+    tcase_add_test(testcase, test_insert_three_elemnts_then_search_elements);
     //tcase_add_test(testcase, test_four_inserts_then_search_four_elements);
     //tcase_add_test(testcase, test_sixteen_inserts_then_search_sixteen_elements);
 

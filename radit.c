@@ -192,8 +192,45 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
     }
     else
     {
-        printf("internal insert uncompressed\n");
-        // iterate over node's slots and either insert new child or recurse down the node
+        /*
+         * Iterate over node's slots and either insert new child or recurse
+         * down the node
+         */
+
+        struct node *old_parent = *node;
+        struct node *new_parent;
+        struct node *child;
+
+        int i;
+        for (i=0; i<old_parent->size; i++)
+        {
+            if (old_parent->data[i] == key[0])
+            {
+                struct node *n = (struct node *)INDEX_ADDRESS(old_parent, i);
+                radit_insert_internal(&n, key + 1, keylen - 1, value);
+                return;
+            }
+        }
+
+        new_parent = create_parent_node(old_parent->size + 1);
+
+        /* copy parent indexes */
+        memmove(new_parent->data,
+                old_parent->data,
+                sizeof(unsigned char) * old_parent->size);
+
+        /* copy pointers */
+        memmove(new_parent->data + sizeof(unsigned char) * new_parent->size,
+                old_parent->data + sizeof(unsigned char) * old_parent->size,
+                sizeof(struct node *) * old_parent->size);
+
+        new_parent->data[old_parent->size] = key[0];
+        child = create_compressed_node(key + 1, keylen - 1);
+        set_value(child, value);
+
+        *((uint64_t *)INDEX_ADDRESS(new_parent, old_parent->size)) = (uint64_t)child;
+
+        *node = new_parent;
     }
 }
 
