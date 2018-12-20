@@ -23,18 +23,28 @@ END_TEST
 
 START_TEST(test_two_inserts_then_search_two_elements)
 {
-	char *k = "key";
-	char *v = "value";
-	char *k2 = "another_key";
-	char *v2 = "another_value";
+    struct radit_tree t;
+    t.root = NULL;
+    radit_insert(&t, "key", "value");
+    radit_insert(&t, "another_key", "another_value");
+
+    ck_assert_str_eq("value", radit_search(&t, "key"));
+    ck_assert_str_eq("another_value", radit_search(&t, "another_key"));
+}
+END_TEST
+
+START_TEST(test_insert_element_and_update_value_pointer_then_search_element)
+{
+    char *k = "key";
+    char v[] = "initial_value";
 
     struct radit_tree t;
     t.root = NULL;
     radit_insert(&t, k, v);
-    radit_insert(&t, k2, v2);
 
-    ck_assert_str_eq("value", radit_search(&t, "key"));
-    ck_assert_str_eq("another_value", radit_search(&t, "another_key"));
+    memcpy(v, "next_value", 11);
+
+    ck_assert_str_eq("next_value", radit_search(&t, "key"));
 }
 END_TEST
 
@@ -155,6 +165,7 @@ main(void)
     tcase_add_test(testcase, test_insert_then_search_an_element);
     tcase_add_test(testcase, test_search_an_empty_tree);
     tcase_add_test(testcase, test_two_inserts_then_search_two_elements);
+    tcase_add_test(testcase, test_insert_element_and_update_value_pointer_then_search_element);
     tcase_add_test(testcase, test_two_inserts_with_common_prefix_then_search_two_elements);
     tcase_add_test(testcase, test_string_and_substring_insert_then_search_two_elements);
     tcase_add_test(testcase, test_substring_and_string_insert_then_search_elements);
