@@ -150,6 +150,9 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
         }
         else if (length == (*node)->size)
         {
+            /*
+             * Current compressed node is substring of key being added.
+             */
             new_parent = *node;
 
             new_child = create_compressed_node(key + length, keylen - length);
@@ -160,7 +163,8 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
         else if (length > 0)
         {
             /*
-             * Truncate off the common prefix
+             * Neither current node nor key is a substring of the other, but
+             * there is a common prefix.
              */
             new_parent = create_compressed_node(key, length);
             new_child = create_parent_node(2);
@@ -176,6 +180,9 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
         }
         else
         {
+            /*
+             * There is no common prefix so we need to create a parent branch.
+             */
             new_parent = create_parent_node(2);
             new_child = create_compressed_node(key + length, keylen - length);
 
