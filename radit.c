@@ -238,6 +238,7 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
         *((uint64_t *)INDEX_ADDRESS(new_parent, old_parent->size)) = (uint64_t)child;
 
         *node = new_parent;
+        free(old_parent);
     }
 }
 
