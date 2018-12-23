@@ -173,10 +173,12 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
 
             truncate_compressed_node(*node, length);
             set_node_index(new_child, *node, 0);
+            truncate_compressed_node(*node, 1);
 
             new_grandchild = create_compressed_node(key + length, keylen - length);
             set_value(new_grandchild, value);
             set_node_index(new_child, new_grandchild, 1);
+            truncate_compressed_node(new_grandchild, 1);
         }
         else
         {

@@ -52,11 +52,11 @@ START_TEST(test_two_inserts_with_common_prefix_then_search_two_elements)
 {
     struct radit_tree t;
     t.root = NULL;
-    radit_insert(&t, "key_1", "value_1");
-    radit_insert(&t, "key_2", "value_2");
+    radit_insert(&t, "key_first", "value_first");
+    radit_insert(&t, "key_second", "value_second");
 
-    ck_assert_str_eq("value_1", radit_search(&t, "key_1"));
-    ck_assert_str_eq("value_2", radit_search(&t, "key_2"));
+    ck_assert_str_eq("value_first", radit_search(&t, "key_first"));
+    ck_assert_str_eq("value_second", radit_search(&t, "key_second"));
 }
 END_TEST
 
