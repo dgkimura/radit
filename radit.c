@@ -299,3 +299,10 @@ radit_insert(
         radit_insert_internal(&tree->root, (unsigned char *)key, strlen(key), (int64_t)value);
     }
 }
+
+void
+radit_delete(
+    struct radit_tree *tree,
+    const char *key)
+{
+}
