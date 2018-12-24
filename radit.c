@@ -215,8 +215,8 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
         {
             if (old_parent->data[i] == key[0])
             {
-                struct node *n = (struct node *)INDEX_ADDRESS(old_parent, i);
-                radit_insert_internal(&n, key + 1, keylen - 1, value);
+                struct node **n = (struct node **)INDEX_ADDRESS(old_parent, i);
+                radit_insert_internal(n, key + 1, keylen - 1, value);
                 return;
             }
         }

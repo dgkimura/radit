@@ -98,19 +98,25 @@ START_TEST(test_insert_three_elemnts_then_search_elements)
 }
 END_TEST
 
-START_TEST(test_four_inserts_then_search_four_elements)
+START_TEST(test_insert_nomatching_prefix_followed_by_matching_prefix_and_then_search_elements)
 {
     struct radit_tree t;
     t.root = NULL;
-    radit_insert(&t, "a_key", "a_value");
-    radit_insert(&t, "b_key", "b_value");
-    radit_insert(&t, "c_key", "c_value");
-    radit_insert(&t, "d_key", "d_value");
 
-    ck_assert_str_eq("a_value", radit_search(&t, "a_key"));
-    ck_assert_str_eq("b_value", radit_search(&t, "b_key"));
-    ck_assert_str_eq("c_value", radit_search(&t, "c_key"));
-    ck_assert_str_eq("d_value", radit_search(&t, "d_key"));
+    /* First insert 2 elements with no-common prefix 'a' and 't' */
+    radit_insert(&t, "a_key_with_no_common_prefix", "value_0");
+    radit_insert(&t, "the_start", "value_1");
+
+    /* Then insert sub-elemnt that extends previously inserted element */
+    radit_insert(&t, "the_start_of_a_long_string", "value_2");
+
+    /* Then insert sub-elemnt that is substring of previously inserted element */
+    radit_insert(&t, "the", "value_3");
+
+    ck_assert_str_eq("value_0", radit_search(&t, "a_key_with_no_common_prefix"));
+    ck_assert_str_eq("value_1", radit_search(&t, "the_start"));
+    ck_assert_str_eq("value_2", radit_search(&t, "the_start_of_a_long_string"));
+    ck_assert_str_eq("value_3", radit_search(&t, "the"));
 }
 END_TEST
 
@@ -181,7 +187,7 @@ main(void)
     tcase_add_test(testcase, test_string_and_substring_insert_then_search_two_elements);
     tcase_add_test(testcase, test_substring_and_string_insert_then_search_elements);
     tcase_add_test(testcase, test_insert_three_elemnts_then_search_elements);
-    //tcase_add_test(testcase, test_four_inserts_then_search_four_elements);
+    tcase_add_test(testcase, test_insert_nomatching_prefix_followed_by_matching_prefix_and_then_search_elements);
     //tcase_add_test(testcase, test_sixteen_inserts_then_search_sixteen_elements);
     tcase_add_test(testcase, test_delete_from_empty_tree);
 
