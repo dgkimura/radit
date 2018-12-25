@@ -307,4 +307,13 @@ radit_delete(
     struct radit_tree *tree,
     const char *key)
 {
+    if (tree->root != NULL)
+    {
+        if (tree->root->is_compressed &&
+            strncmp((char *)(tree->root->data), key, tree->root->size) == 0)
+        {
+            free(tree->root);
+            tree->root = NULL;
+        }
+    }
 }
