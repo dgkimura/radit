@@ -302,18 +302,58 @@ radit_insert(
     }
 }
 
+static int
+radit_delete_internal(struct node **node, const char * key)
+{
+    struct node *n = *node;
+
+    if (n->is_compressed && n->size == strlen(key) &&
+        strncmp((char *)(n->data), key, strlen(key)) == 0)
+    {
+        /* key found */
+        free(n);
+        *node = NULL;
+        return 1;
+    }
+    if (!n->is_compressed)
+    {
+        int i;
+        for (i=0; i<n->size; i++)
+        {
+            if (n->data[i] == key[0])
+            {
+                if (radit_delete_internal((struct node **)INDEX_ADDRESS(n, i), key + 1))
+                {
+                    /* reset index iff found and deleted key */
+                    n->data[i] = 0;
+                }
+                break;
+            }
+        }
+    }
+
+    /* key not found */
+    return 0;
+}
+
 void
 radit_delete(
     struct radit_tree *tree,
     const char *key)
 {
+    struct node *n = tree->root;
     if (tree->root != NULL)
     {
-        if (tree->root->is_compressed &&
-            strncmp((char *)(tree->root->data), key, tree->root->size) == 0)
+
+        if (n->is_compressed && n->size == strlen(key) &&
+            strncmp((char *)(n->data), key, strlen(key)) == 0)
         {
-            free(tree->root);
+            free(n);
             tree->root = NULL;
+        }
+        else
+        {
+            radit_delete_internal(&tree->root, key);
         }
     }
 }

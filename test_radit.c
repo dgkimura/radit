@@ -187,6 +187,22 @@ START_TEST(test_delete_from_one_element_tree)
 }
 END_TEST
 
+START_TEST(test_delete_from_two_element_tree)
+{
+    struct radit_tree t;
+    t.root = NULL;
+
+    radit_insert(&t, "a_key", "a_value");
+    radit_insert(&t, "b_key", "b_value");
+    ck_assert_str_eq("a_value", radit_search(&t, "a_key"));
+    ck_assert_str_eq("b_value", radit_search(&t, "b_key"));
+
+    radit_delete(&t, "a_key");
+    ck_assert_ptr_eq(NULL, radit_search(&t, "a_key"));
+    ck_assert_str_eq("b_value", radit_search(&t, "b_key"));
+}
+END_TEST
+
 int
 main(void)
 {
@@ -207,6 +223,7 @@ main(void)
     //tcase_add_test(testcase, test_sixteen_inserts_then_search_sixteen_elements);
     tcase_add_test(testcase, test_delete_from_empty_tree);
     tcase_add_test(testcase, test_delete_from_one_element_tree);
+    tcase_add_test(testcase, test_delete_from_two_element_tree);
 
     srunner_run_all(runner, CK_ENV);
     return 0;
