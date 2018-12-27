@@ -247,7 +247,11 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
 static void *
 radit_search_internal(struct node *node, const char * key)
 {
-    if (node->has_value && strncmp((char *)node->data, key, strlen(key)) == 0)
+    if (node == NULL)
+    {
+        return NULL;
+    }
+    else if (node->has_value && strncmp((char *)node->data, key, strlen(key)) == 0)
     {
         return (void *)get_value(node);
     }
@@ -275,10 +279,6 @@ radit_search(
     const struct radit_tree *tree,
     const char *key)
 {
-    if (!tree->root)
-    {
-        return NULL;
-    }
     return radit_search_internal(tree->root, key);
 }
 
@@ -307,13 +307,35 @@ radit_delete_internal(struct node **node, const char * key)
 {
     struct node *n = *node;
 
-    if (n->is_compressed && n->size == strlen(key) &&
-        strncmp((char *)(n->data), key, strlen(key)) == 0)
+    if (n->is_compressed && n->size <= strlen(key) &&
+        strncmp((char *)(n->data), key, n->size) == 0)
     {
-        /* key found */
-        free(n);
-        *node = NULL;
-        return 1;
+        /*
+         * Found compressed node with matching prefix.
+         */
+        if (n->size == strlen(key))
+        {
+            /*
+             * Found node that is exact match.
+             */
+            struct node *child = *(struct node **)INDEX_ADDRESS(n, 0);
+            if (child != NULL)
+            {
+                /* TODO: combine nodes */
+            }
+
+            free(n);
+            *node = NULL;
+            return 1;
+        }
+        else if (radit_delete_internal((struct node **)INDEX_ADDRESS(n, 0), key + n->size))
+        {
+            /*
+             * Recursively found string that matches key. Reset index.
+             */
+            *((uint64_t *)INDEX_ADDRESS(n, 0)) = 0;
+            return 1;
+        }
     }
     if (!n->is_compressed)
     {
@@ -322,10 +344,16 @@ radit_delete_internal(struct node **node, const char * key)
         {
             if (n->data[i] == key[0])
             {
+                /*
+                 * Found parent node with matching index entry.
+                 */
                 if (radit_delete_internal((struct node **)INDEX_ADDRESS(n, i), key + 1))
                 {
-                    /* reset index iff found and deleted key */
+                    /*
+                     * Recursively found string that matches key. Reset index.
+                     */
                     n->data[i] = 0;
+                    *((uint64_t *)INDEX_ADDRESS(n, i)) = 0;
                 }
                 break;
             }
