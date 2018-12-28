@@ -71,6 +71,27 @@ set_value(struct node *node, uint64_t data)
     }
 }
 
+static struct node *
+combine_compressed_node(struct node *right, struct node *left)
+{
+    uint8_t combined_compressed_length = right->size + left->size;
+
+    struct node *node;
+    node = malloc(sizeof(struct node) +
+                  sizeof(unsigned char) * combined_compressed_length +
+                  sizeof(struct node *) + sizeof(void *));
+    memset(node, 0, sizeof(struct node) +
+           sizeof(unsigned char) * combined_compressed_length +
+           sizeof(struct node *) + sizeof(void *));
+    node->is_compressed = 1;
+    node->size = combined_compressed_length;
+    memcpy(node->data, right->data, right->size);
+    memcpy(node->data + right->size, left->data, left->size);
+    set_value(node, get_value(left));
+    *((uint64_t *)INDEX_ADDRESS(node, 0)) = *((uint64_t *)INDEX_ADDRESS(left, 0));
+    return node;
+}
+
 static void
 truncate_compressed_node(struct node *node, size_t length)
 {
