@@ -6,7 +6,7 @@
 
 #include "radit.h"
 
-#define INDEX_ADDRESS(n, index) ((uint64_t)(&n->data) + sizeof(unsigned char) * n->size + sizeof(struct node *) * index)
+#define INDEX_ADDRESS(n, index) ((struct node *)(&n->data) + sizeof(unsigned char) * n->size + sizeof(struct node *) * index)
 
 static struct node *
 create_parent_node(uint8_t num_children)
@@ -88,7 +88,7 @@ combine_compressed_node(struct node *right, struct node *left)
     memcpy(node->data, right->data, right->size);
     memcpy(node->data + right->size, left->data, left->size);
     set_value(node, get_value(left));
-    *((uint64_t *)INDEX_ADDRESS(node, 0)) = *((uint64_t *)INDEX_ADDRESS(left, 0));
+    *((struct node *)INDEX_ADDRESS(node, 0)) = *((struct node *)INDEX_ADDRESS(left, 0));
     return node;
 }
 
