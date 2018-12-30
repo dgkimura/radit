@@ -220,6 +220,23 @@ START_TEST(test_delete_superstring_from_tree)
 }
 END_TEST
 
+START_TEST(test_delete_substring_from_tree)
+{
+    struct radit_tree t;
+    t.root = NULL;
+
+    radit_insert(&t, "the_beginning", "value_0");
+    radit_insert(&t, "the_beginning_of_a_long_string", "value_1");
+
+    ck_assert_str_eq("value_0", radit_search(&t, "the_beginning"));
+    ck_assert_str_eq("value_1", radit_search(&t, "the_beginning_of_a_long_string"));
+
+    radit_delete(&t, "the_beginning");
+    ck_assert_ptr_eq(NULL, radit_search(&t, "the_beginning"));
+    ck_assert_str_eq("value_1", radit_search(&t, "the_beginning_of_a_long_string"));
+}
+END_TEST
+
 int
 main(void)
 {
@@ -242,6 +259,7 @@ main(void)
     tcase_add_test(testcase, test_delete_from_one_element_tree);
     tcase_add_test(testcase, test_delete_from_two_element_tree);
     tcase_add_test(testcase, test_delete_superstring_from_tree);
+    tcase_add_test(testcase, test_delete_substring_from_tree);
 
     srunner_run_all(runner, CK_ENV);
     return 0;

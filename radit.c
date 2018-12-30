@@ -268,7 +268,7 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
 static void *
 radit_search_internal(struct node *node, const char * key)
 {
-    if (node == NULL)
+    if (node == NULL || node->size > strlen(key))
     {
         return NULL;
     }
@@ -342,7 +342,8 @@ radit_delete_internal(struct node **node, const char * key)
             struct node *child = *(struct node **)INDEX_ADDRESS(n, 0);
             if (child != NULL)
             {
-                /* TODO: combine nodes */
+                /* combine nodes */
+                *node = combine_compressed_node(n, child);
             }
 
             free(n);
@@ -393,12 +394,23 @@ radit_delete(
     struct node *n = tree->root;
     if (tree->root != NULL)
     {
-
         if (n->is_compressed && n->size == strlen(key) &&
             strncmp((char *)(n->data), key, strlen(key)) == 0)
         {
-            free(n);
-            tree->root = NULL;
+            struct node *child = *(struct node **)INDEX_ADDRESS(n, 0);
+
+            if (child != NULL)
+            {
+                /* combine nodes */
+                tree->root = combine_compressed_node(n, child);
+                free(n);
+                free(child);
+            }
+            else
+            {
+                free(n);
+                tree->root = NULL;
+            }
         }
         else
         {
