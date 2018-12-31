@@ -268,7 +268,7 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
 static void *
 radit_search_internal(struct node *node, const char * key)
 {
-    if (node == NULL || node->size > strlen(key))
+    if (node == NULL || (node->is_compressed && node->size > strlen(key)))
     {
         return NULL;
     }

@@ -254,7 +254,7 @@ main(void)
     tcase_add_test(testcase, test_substring_and_string_insert_then_search_elements);
     tcase_add_test(testcase, test_insert_three_elemnts_then_search_elements);
     tcase_add_test(testcase, test_insert_nomatching_prefix_followed_by_matching_prefix_and_then_search_elements);
-    //tcase_add_test(testcase, test_sixteen_inserts_then_search_sixteen_elements);
+    tcase_add_test(testcase, test_sixteen_inserts_then_search_sixteen_elements);
     tcase_add_test(testcase, test_delete_from_empty_tree);
     tcase_add_test(testcase, test_delete_from_one_element_tree);
     tcase_add_test(testcase, test_delete_from_two_element_tree);
