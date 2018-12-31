@@ -6,7 +6,7 @@
 
 #include "radit.h"
 
-#define INDEX_ADDRESS(n, index) ((struct node *)(&n->data) + sizeof(unsigned char) * n->size + sizeof(struct node *) * index)
+#define INDEX_ADDRESS(n, index) ((struct node **)((uint8_t *)(&n->data) + sizeof(unsigned char) * n->size + sizeof(struct node *) * index))
 
 static struct node *
 create_parent_node(uint8_t num_children)
@@ -88,7 +88,7 @@ combine_compressed_node(struct node *right, struct node *left)
     memcpy(node->data, right->data, right->size);
     memcpy(node->data + right->size, left->data, left->size);
     set_value(node, get_value(left));
-    *((struct node *)INDEX_ADDRESS(node, 0)) = *((struct node *)INDEX_ADDRESS(left, 0));
+    *(INDEX_ADDRESS(node, 0)) = *(INDEX_ADDRESS(left, 0));
     return node;
 }
 
@@ -108,7 +108,8 @@ truncate_compressed_node(struct node *node, size_t length)
     memmove(node->data, node->data + length, sizeof(unsigned char) * (node->size - length));
 
     /* Shift index (compressed has only 1 index) */
-    memmove((void *)(INDEX_ADDRESS(node, 0) - sizeof(unsigned char) * length), (void *)INDEX_ADDRESS(node, 0), sizeof(struct node *));
+    memmove((void *)((uint64_t)(&node->data) + sizeof(unsigned char) * (node->size - length)),
+            (void *)((uint64_t)(&node->data) + sizeof(unsigned char) * (node->size)), sizeof(struct node *));
 
     /* Shift value pointer */
     uint64_t old_value = get_value(node);
@@ -125,7 +126,7 @@ set_node_index(struct node *parent, struct node *child, uint8_t index)
     parent->data[index] = child->data[0];
 
     /* Set parent to point to child */
-    *((uint64_t *)INDEX_ADDRESS(parent, index)) = (uint64_t)child;
+    *(INDEX_ADDRESS(parent, index)) = child;
 }
 
 static uint8_t
@@ -163,7 +164,7 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
             set_value(new_parent, value);
 
             new_child = create_parent_node(1);
-            *((uint64_t *)INDEX_ADDRESS(new_parent, 0)) = (uint64_t)new_child;
+            *(INDEX_ADDRESS(new_parent, 0)) = new_child;
 
             truncate_compressed_node(*node, length);
             set_node_index(new_child, *node, 0);
@@ -179,7 +180,7 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
             new_child = create_compressed_node(key + length, keylen - length);
             set_value(new_child, value);
 
-            *((uint64_t *)INDEX_ADDRESS(new_parent, 0)) = (uint64_t)new_child;
+            *(INDEX_ADDRESS(new_parent, 0)) = new_child;
         }
         else if (length > 0)
         {
@@ -190,7 +191,7 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
             new_parent = create_compressed_node(key, length);
             new_child = create_parent_node(2);
 
-            *((uint64_t *)INDEX_ADDRESS(new_parent, 0)) = (uint64_t)new_child;
+            *(INDEX_ADDRESS(new_parent, 0)) = new_child;
 
             truncate_compressed_node(*node, length);
             set_node_index(new_child, *node, 0);
@@ -236,7 +237,7 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
         {
             if (old_parent->data[i] == key[0])
             {
-                struct node **n = (struct node **)INDEX_ADDRESS(old_parent, i);
+                struct node **n = INDEX_ADDRESS(old_parent, i);
                 radit_insert_internal(n, key + 1, keylen - 1, value);
                 return;
             }
@@ -258,7 +259,7 @@ radit_insert_internal(struct node **node, unsigned char *key, size_t keylen, int
         child = create_compressed_node(key + 1, keylen - 1);
         set_value(child, value);
 
-        *((uint64_t *)INDEX_ADDRESS(new_parent, old_parent->size)) = (uint64_t)child;
+        *(INDEX_ADDRESS(new_parent, old_parent->size)) = child;
 
         *node = new_parent;
         free(old_parent);
@@ -283,13 +284,13 @@ radit_search_internal(struct node *node, const char * key)
         {
             if (node->data[i] == key[0])
             {
-                return radit_search_internal((struct node *)(*(uint64_t *)INDEX_ADDRESS(node, i)), key + 1);
+                return radit_search_internal((struct node *)(*INDEX_ADDRESS(node, i)), key + 1);
             }
         }
     }
     else if (node->is_compressed && strncmp((char *)node->data, key, node->size) == 0)
     {
-        return radit_search_internal((struct node *)(*(uint64_t *)INDEX_ADDRESS(node, 0)), key + node->size);
+        return radit_search_internal((struct node *)(*INDEX_ADDRESS(node, 0)), key + node->size);
     }
 
     return NULL;
@@ -339,7 +340,7 @@ radit_delete_internal(struct node **node, const char * key)
             /*
              * Found node that is exact match.
              */
-            struct node *child = *(struct node **)INDEX_ADDRESS(n, 0);
+            struct node *child = *INDEX_ADDRESS(n, 0);
             if (child != NULL)
             {
                 /* combine nodes */
@@ -350,12 +351,12 @@ radit_delete_internal(struct node **node, const char * key)
             *node = NULL;
             return 1;
         }
-        else if (radit_delete_internal((struct node **)INDEX_ADDRESS(n, 0), key + n->size))
+        else if (radit_delete_internal(INDEX_ADDRESS(n, 0), key + n->size))
         {
             /*
              * Recursively found string that matches key. Reset index.
              */
-            *((uint64_t *)INDEX_ADDRESS(n, 0)) = 0;
+            *(INDEX_ADDRESS(n, 0)) = 0;
             return 1;
         }
     }
@@ -369,13 +370,13 @@ radit_delete_internal(struct node **node, const char * key)
                 /*
                  * Found parent node with matching index entry.
                  */
-                if (radit_delete_internal((struct node **)INDEX_ADDRESS(n, i), key + 1))
+                if (radit_delete_internal(INDEX_ADDRESS(n, i), key + 1))
                 {
                     /*
                      * Recursively found string that matches key. Reset index.
                      */
                     n->data[i] = 0;
-                    *((uint64_t *)INDEX_ADDRESS(n, i)) = 0;
+                    *(INDEX_ADDRESS(n, i)) = 0;
                 }
                 break;
             }
@@ -397,7 +398,7 @@ radit_delete(
         if (n->is_compressed && n->size == strlen(key) &&
             strncmp((char *)(n->data), key, strlen(key)) == 0)
         {
-            struct node *child = *(struct node **)INDEX_ADDRESS(n, 0);
+            struct node *child = *INDEX_ADDRESS(n, 0);
 
             if (child != NULL)
             {
