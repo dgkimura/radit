@@ -5,7 +5,7 @@
 START_TEST(test_search_an_empty_tree)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
 
     ck_assert_ptr_eq(NULL, radit_search(&t, "fake_key"));
 }
@@ -14,7 +14,8 @@ END_TEST
 START_TEST(test_insert_then_search_an_element)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
+
     radit_insert(&t, "key", "value");
 
     ck_assert_str_eq("value", radit_search(&t, "key"));
@@ -24,7 +25,8 @@ END_TEST
 START_TEST(test_two_inserts_then_search_two_elements)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
+
     radit_insert(&t, "key", "value");
     radit_insert(&t, "another_key", "another_value");
 
@@ -39,7 +41,8 @@ START_TEST(test_insert_element_and_update_value_pointer_then_search_element)
     char v[] = "initial_value";
 
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
+
     radit_insert(&t, k, v);
 
     memcpy(v, "next_value", 11);
@@ -51,7 +54,8 @@ END_TEST
 START_TEST(test_two_inserts_with_common_prefix_then_search_two_elements)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
+
     radit_insert(&t, "key_first", "value_first");
     radit_insert(&t, "key_second", "value_second");
 
@@ -63,7 +67,8 @@ END_TEST
 START_TEST(test_string_and_substring_insert_then_search_two_elements)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
+
     radit_insert(&t, "the_beginning_of_a_long_string", "value_1");
     radit_insert(&t, "the_beginning", "value_0");
 
@@ -75,7 +80,8 @@ END_TEST
 START_TEST(test_substring_and_string_insert_then_search_elements)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
+
     radit_insert(&t, "the_beginning", "value_0");
     radit_insert(&t, "the_beginning_of_a_long_string", "value_1");
 
@@ -87,7 +93,8 @@ END_TEST
 START_TEST(test_insert_three_elemnts_then_search_elements)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
+
     radit_insert(&t, "a_key", "a_value");
     radit_insert(&t, "b_key", "b_value");
     radit_insert(&t, "c_key", "c_value");
@@ -101,7 +108,7 @@ END_TEST
 START_TEST(test_insert_nomatching_prefix_followed_by_matching_prefix_and_then_search_elements)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
 
     /* First insert 2 elements with no-common prefix 'a' and 't' */
     radit_insert(&t, "a_key_with_no_common_prefix", "value_0");
@@ -123,7 +130,8 @@ END_TEST
 START_TEST(test_sixteen_inserts_then_search_sixteen_elements)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
+
     radit_insert(&t, "a_key", "a_value");
     radit_insert(&t, "b_key", "b_value");
     radit_insert(&t, "c_key", "c_value");
@@ -163,7 +171,7 @@ END_TEST
 START_TEST(test_delete_from_empty_tree)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
 
     radit_delete(&t, "key");
 
@@ -174,7 +182,7 @@ END_TEST
 START_TEST(test_delete_from_one_element_tree)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
 
     radit_insert(&t, "key", "value");
     ck_assert_str_eq("value", radit_search(&t, "key"));
@@ -190,7 +198,7 @@ END_TEST
 START_TEST(test_delete_from_two_element_tree)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
 
     radit_insert(&t, "a_key", "a_value");
     radit_insert(&t, "b_key", "b_value");
@@ -206,7 +214,7 @@ END_TEST
 START_TEST(test_delete_superstring_from_tree)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
 
     radit_insert(&t, "the_beginning", "value_0");
     radit_insert(&t, "the_beginning_of_a_long_string", "value_1");
@@ -223,7 +231,7 @@ END_TEST
 START_TEST(test_delete_substring_from_tree)
 {
     struct radit_tree t;
-    t.root = NULL;
+    radit_init(&t);
 
     radit_insert(&t, "the_beginning", "value_0");
     radit_insert(&t, "the_beginning_of_a_long_string", "value_1");

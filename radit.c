@@ -359,6 +359,13 @@ radit_delete_internal(struct node **node, const char * key)
     return 0;
 }
 
+void
+radit_init(
+    struct radit_tree *tree)
+{
+    tree->root = NULL;
+}
+
 void *
 radit_search(
     const struct radit_tree *tree,
