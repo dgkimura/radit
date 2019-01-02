@@ -296,34 +296,6 @@ radit_search_internal(struct node *node, const char * key)
     return NULL;
 }
 
-void *
-radit_search(
-    const struct radit_tree *tree,
-    const char *key)
-{
-    return radit_search_internal(tree->root, key);
-}
-
-void
-radit_insert(
-    struct radit_tree *tree,
-    const char *key,
-    void *value)
-{
-    if (tree->root == NULL)
-    {
-        struct node *n;
-        n = create_compressed_node((unsigned char *)key, strlen(key));
-        set_value(n, (int64_t)value);
-
-        tree->root = n;
-    }
-    else
-    {
-        radit_insert_internal(&tree->root, (unsigned char *)key, strlen(key), (int64_t)value);
-    }
-}
-
 static int
 radit_delete_internal(struct node **node, const char * key)
 {
@@ -385,6 +357,34 @@ radit_delete_internal(struct node **node, const char * key)
 
     /* key not found */
     return 0;
+}
+
+void *
+radit_search(
+    const struct radit_tree *tree,
+    const char *key)
+{
+    return radit_search_internal(tree->root, key);
+}
+
+void
+radit_insert(
+    struct radit_tree *tree,
+    const char *key,
+    void *value)
+{
+    if (tree->root == NULL)
+    {
+        struct node *n;
+        n = create_compressed_node((unsigned char *)key, strlen(key));
+        set_value(n, (int64_t)value);
+
+        tree->root = n;
+    }
+    else
+    {
+        radit_insert_internal(&tree->root, (unsigned char *)key, strlen(key), (int64_t)value);
+    }
 }
 
 void
