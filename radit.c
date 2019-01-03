@@ -359,10 +359,46 @@ radit_delete_internal(struct node **node, const char * key)
     return 0;
 }
 
+static void
+radit_destroy_internal(struct node *n)
+{
+    if (n == NULL)
+    {
+        return;
+    }
+
+    if (n->is_compressed)
+    {
+        struct node *child = *INDEX_ADDRESS(n, 0);
+        if (child != NULL)
+        {
+            radit_destroy_internal(child);
+        }
+    }
+    else
+    {
+        int i;
+        for (i=0; i<n->size; i++)
+        {
+            radit_destroy_internal(*INDEX_ADDRESS(n, i));
+        }
+    }
+
+    free(n);
+}
+
 void
 radit_init(
     struct radit_tree *tree)
 {
+    tree->root = NULL;
+}
+
+void
+radit_destroy(
+    struct radit_tree *tree)
+{
+    radit_destroy_internal(tree->root);
     tree->root = NULL;
 }
 

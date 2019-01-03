@@ -19,7 +19,7 @@ struct radit_tree
 
 void radit_init(struct radit_tree *tree);
 
-int radit_destroy(struct radit_tree *tree);
+void radit_destroy(struct radit_tree *tree);
 
 void *radit_search(const struct radit_tree *tree, const char *key);
 

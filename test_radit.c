@@ -245,6 +245,23 @@ START_TEST(test_delete_substring_from_tree)
 }
 END_TEST
 
+START_TEST(test_destroy_deletes_all_elements_from_a_tree)
+{
+    struct radit_tree t;
+    radit_init(&t);
+
+    radit_insert(&t, "key", "value");
+    radit_insert(&t, "another_key", "another_value");
+    radit_insert(&t, "another_another_key", "another_another_value");
+
+    radit_destroy(&t);
+
+    ck_assert_ptr_eq(NULL, radit_search(&t, "key"));
+    ck_assert_ptr_eq(NULL, radit_search(&t, "another_key"));
+    ck_assert_ptr_eq(NULL, radit_search(&t, "another_another_key"));
+}
+END_TEST
+
 int
 main(void)
 {
@@ -268,6 +285,7 @@ main(void)
     tcase_add_test(testcase, test_delete_from_two_element_tree);
     tcase_add_test(testcase, test_delete_superstring_from_tree);
     tcase_add_test(testcase, test_delete_substring_from_tree);
+    tcase_add_test(testcase, test_destroy_deletes_all_elements_from_a_tree);
 
     srunner_run_all(runner, CK_ENV);
     return 0;
