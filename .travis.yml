@@ -42,7 +42,13 @@ before_install:
     - eval "${MATRIX_EVAL}"
 
 install:
-  - sudo apt-get install check subunit
+  - sudo apt-get install check subunit lcov
+  - pip install --user --upgrade pip
+  - pip install --user cpp-coveralls
 
 script:
   - make
+  - ./test_radit
+
+after_success:
+  - coveralls --include radit.c --include radit.h --gcov-options '\-lp'

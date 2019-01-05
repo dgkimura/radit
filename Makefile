@@ -1,3 +1,5 @@
+CFLAGS=-ftest-coverage
+
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S), Linux)
 	TEST_LIBS =-lcheck_pic -lpthread -lrt -lm
@@ -9,11 +11,11 @@ endif
 all: radit test_radit
 
 radit:
-	$(CC) -g -c radit.c -o $@.o ${LIBS}
+	$(CC) $(CFLAGS) -g -c radit.c -o $@.o ${LIBS}
 	$(AR) rcs $@.a $@.o
 
 test_radit: radit
-	$(CC) -g test_radit.c radit.a -o test_radit $(TEST_LIBS)
+	$(CC) $(CFLAGS) -g test_radit.c radit.a -o test_radit $(TEST_LIBS)
 
 clean:
 	rm -f test_radit *.o *.a
