@@ -387,6 +387,12 @@ radit_destroy_internal(struct node *n)
     free(n);
 }
 
+/*
+ * Initializes radix tree structure.
+ *
+ * Initialization uses a passed-in pointer to give caller flexibility (e.g.
+ * whether the structure is allocated on stack or heap).
+ */
 void
 radit_init(
     struct radit_tree *tree)
@@ -394,6 +400,11 @@ radit_init(
     tree->root = NULL;
 }
 
+/*
+ * Destroys radix tree structure.
+ *
+ * Destroys any internal nodes used to map keys to values.
+ */
 void
 radit_destroy(
     struct radit_tree *tree)
@@ -402,6 +413,12 @@ radit_destroy(
     tree->root = NULL;
 }
 
+/*
+ * Searches for a key in the tree.
+ *
+ * Given a key returns a pointer to the corresponding value. If none exists
+ * then return NULL.
+ */
 void *
 radit_search(
     const struct radit_tree *tree,
@@ -410,6 +427,14 @@ radit_search(
     return radit_search_internal(tree->root, key);
 }
 
+/*
+ * Inserts a key/value pair into the tree.
+ *
+ * Both key/value are both pointers. The key data will be embedded into the
+ * radix tree node structure. The value data exists in the tree only through
+ * pointer indirection. Thus caller is responsible to prevent dangling
+ * pointers.
+ */
 void
 radit_insert(
     struct radit_tree *tree,
@@ -430,6 +455,12 @@ radit_insert(
     }
 }
 
+/*
+ * Deletes a key from the tree.
+ *
+ * Given a key removes the value from the tree. Also preforms node compression
+ * as necessary.
+ */
 void
 radit_delete(
     struct radit_tree *tree,
